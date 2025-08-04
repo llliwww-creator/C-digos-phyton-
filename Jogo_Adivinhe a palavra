@@ -1,0 +1,255 @@
+import random
+import time
+import threading
+import sys
+
+class TimeoutExpired(Exception):
+    pass
+
+def input_with_timeout(prompt, timeout):
+    """
+    Função para ler input com tempo limite.
+    Se o tempo passar, gera exceção TimeoutExpired.
+    """
+    print(prompt, end=' ', flush=True)
+    result = [None]
+    
+    def timed_input():
+        try:
+            result[0] = input()
+        except:
+            pass
+    
+    thread = threading.Thread(target=timed_input)
+    thread.daemon = True
+    thread.start()
+    thread.join(timeout)
+    if thread.is_alive():
+        raise TimeoutExpired
+    else:
+        return result[0]
+
+class JogoAdivinhePalavra:
+    def __init__(self):
+        # Lista de palavras e dicas (tuplas)
+        self.palavras = [
+            ("python", "Linguagem de programação famosa por simplicidade"),
+            ("maçonaria", "Organização iniciática com símbolos secretos"),
+            ("universo", "Tudo que existe, incluindo espaço e tempo"),
+            ("algoritmo", "Sequência de passos para resolver um problema"),
+            ("programador", "Profissional que escreve códigos"),
+            ("estrela", "Corpo celeste que brilha no céu noturno"),
+            ("computador", "Máquina para processar dados e executar programas"),
+            ("inteligencia", "Capacidade de aprender e resolver problemas"),
+            ("jogo", "Atividade para diversão ou competição"),
+            ("desenvolvedor", "Pessoa que cria softwares"),
+        ]
+        self.palavra, self.dica = random.choice(self.palavras)
+        self.tentativas_erradas = 0
+        self.tentativas_max = 6
+        self.letras_acertadas = set()
+        self.letras_erradas = set()
+        self.tempo_limite = 60  # segundos para o jogo inteiro
+        self.inicio = None
+    
+    def mostrar_status(self):
+        # Mostrar palavra com letras acertadas e _ para faltando
+        palavra_exibida = ' '.join(
+            [letra if letra in self.letras_acertadas else '_' for letra in self.palavra]
+        )
+        print(f"\nPalavra: {palavra_exibida}")
+        print(f"Tentativas erradas: {self.tentativas_erradas}/{self.tentativas_max}")
+        print(f"Letras erradas: {', '.join(sorted(self.letras_erradas))}")
+        tempo_restante = max(0, self.tempo_limite - (time.time() - self.inicio))
+        print(f"Tempo restante: {int(tempo_restante)} segundos")
+    
+    def pedir_letra(self):
+        while True:
+            try:
+                entrada = input_with_timeout("Digite uma letra ou 'dica' para ajuda:", 15).strip().lower()
+            except TimeoutExpired:
+                print("\nTempo para responder essa rodada esgotado!")
+                return None
+            
+            if entrada == "dica":
+                print(f"Dica: {self.dica}")
+                continue
+            
+            if len(entrada) != 1 or not entrada.isalpha():
+                print("Por favor, digite apenas uma letra válida.")
+                continue
+            
+            if entrada in self.letras_acertadas or entrada in self.letras_erradas:
+                print("Você já tentou essa letra.")
+                continue
+            
+            return entrada
+    
+    def jogar(self):
+        print("=== Jogo: Adivinhe a Palavra ===")
+        print(f"Você tem {self.tempo_limite} segundos para adivinhar a palavra.")
+        print("Pode digitar 'dica' para receber uma ajuda.")
+        self.inicio = time.time()
+        
+        while True:
+            self.mostrar_status()
+            
+            if time.time() - self.inicio > self.tempo_limite:
+                print("\nTempo esgotado! Você perdeu.")
+                print(f"A palavra era: {self.palavra}")
+                break
+            
+            letra = self.pedir_letra()
+            if letra is None:
+                # Não respondeu a tempo
+                self.tentativas_erradas += 1
+            elif letra in self.palavra:
+                print("Boa! Letra correta.")
+                self.letras_acertadas.add(letra)
+            else:
+                print("Ops! Letra errada.")
+                self.letras_erradas.add(letra)
+                self.tentativas_erradas += 1
+            
+            # Verifica vitória
+            if all(letra in self.letras_acertadas for letra in self.palavra):
+                print(f"\nParabéns! Você adivinhou a palavra: {self.palavra}")
+                break
+            
+            if self.tentativas_erradas >= self.tentativas_max:
+                print("\nVocê excedeu o número de tentativas erradas. Game over.")
+                print(f"A palavra era: {self.palavra}")
+                break
+        
+        print("Obrigado por jogar!")
+
+if __name__ == "__main__":
+    jogo = JogoAdivinhePalavra()
+    jogo.jogar()import random
+import time
+import threading
+import sys
+
+class TimeoutExpired(Exception):
+    pass
+
+def input_with_timeout(prompt, timeout):
+    """
+    Função para ler input com tempo limite.
+    Se o tempo passar, gera exceção TimeoutExpired.
+    """
+    print(prompt, end=' ', flush=True)
+    result = [None]
+    
+    def timed_input():
+        try:
+            result[0] = input()
+        except:
+            pass
+    
+    thread = threading.Thread(target=timed_input)
+    thread.daemon = True
+    thread.start()
+    thread.join(timeout)
+    if thread.is_alive():
+        raise TimeoutExpired
+    else:
+        return result[0]
+
+class JogoAdivinhePalavra:
+    def __init__(self):
+        # Lista de palavras e dicas (tuplas)
+        self.palavras = [
+            ("python", "Linguagem de programação famosa por simplicidade"),
+            ("maçonaria", "Organização iniciática com símbolos secretos"),
+            ("universo", "Tudo que existe, incluindo espaço e tempo"),
+            ("algoritmo", "Sequência de passos para resolver um problema"),
+            ("programador", "Profissional que escreve códigos"),
+            ("estrela", "Corpo celeste que brilha no céu noturno"),
+            ("computador", "Máquina para processar dados e executar programas"),
+            ("inteligencia", "Capacidade de aprender e resolver problemas"),
+            ("jogo", "Atividade para diversão ou competição"),
+            ("desenvolvedor", "Pessoa que cria softwares"),
+        ]
+        self.palavra, self.dica = random.choice(self.palavras)
+        self.tentativas_erradas = 0
+        self.tentativas_max = 6
+        self.letras_acertadas = set()
+        self.letras_erradas = set()
+        self.tempo_limite = 60  # segundos para o jogo inteiro
+        self.inicio = None
+    
+    def mostrar_status(self):
+        # Mostrar palavra com letras acertadas e _ para faltando
+        palavra_exibida = ' '.join(
+            [letra if letra in self.letras_acertadas else '_' for letra in self.palavra]
+        )
+        print(f"\nPalavra: {palavra_exibida}")
+        print(f"Tentativas erradas: {self.tentativas_erradas}/{self.tentativas_max}")
+        print(f"Letras erradas: {', '.join(sorted(self.letras_erradas))}")
+        tempo_restante = max(0, self.tempo_limite - (time.time() - self.inicio))
+        print(f"Tempo restante: {int(tempo_restante)} segundos")
+    
+    def pedir_letra(self):
+        while True:
+            try:
+                entrada = input_with_timeout("Digite uma letra ou 'dica' para ajuda:", 15).strip().lower()
+            except TimeoutExpired:
+                print("\nTempo para responder essa rodada esgotado!")
+                return None
+            
+            if entrada == "dica":
+                print(f"Dica: {self.dica}")
+                continue
+            
+            if len(entrada) != 1 or not entrada.isalpha():
+                print("Por favor, digite apenas uma letra válida.")
+                continue
+            
+            if entrada in self.letras_acertadas or entrada in self.letras_erradas:
+                print("Você já tentou essa letra.")
+                continue
+            
+            return entrada
+    
+    def jogar(self):
+        print("=== Jogo: Adivinhe a Palavra ===")
+        print(f"Você tem {self.tempo_limite} segundos para adivinhar a palavra.")
+        print("Pode digitar 'dica' para receber uma ajuda.")
+        self.inicio = time.time()
+        
+        while True:
+            self.mostrar_status()
+            
+            if time.time() - self.inicio > self.tempo_limite:
+                print("\nTempo esgotado! Você perdeu.")
+                print(f"A palavra era: {self.palavra}")
+                break
+            
+            letra = self.pedir_letra()
+            if letra is None:
+                # Não respondeu a tempo
+                self.tentativas_erradas += 1
+            elif letra in self.palavra:
+                print("Boa! Letra correta.")
+                self.letras_acertadas.add(letra)
+            else:
+                print("Ops! Letra errada.")
+                self.letras_erradas.add(letra)
+                self.tentativas_erradas += 1
+            
+            # Verifica vitória
+            if all(letra in self.letras_acertadas for letra in self.palavra):
+                print(f"\nParabéns! Você adivinhou a palavra: {self.palavra}")
+                break
+            
+            if self.tentativas_erradas >= self.tentativas_max:
+                print("\nVocê excedeu o número de tentativas erradas. Game over.")
+                print(f"A palavra era: {self.palavra}")
+                break
+        
+        print("Obrigado por jogar!")
+
+if __name__ == "__main__":
+    jogo = JogoAdivinhePalavra()
+    jogo.jogar()
